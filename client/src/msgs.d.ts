@@ -1,0 +1,49 @@
+export type NewSessionMessage = {
+    type: "newSession",
+    videoUrl: string,
+    sdp: RTCSessionDescriptionInit & { type: "offer" },
+};
+
+export type ResumeSessionMessage = {
+    type: "resumeSession",
+    sessionId: string,
+    // We assume that we always want to re-negotiate on re-connect.
+    sdp: RTCSessionDescriptionInit & { type: "offer" },
+};
+
+export type EndSessionMessage = {
+    type: "endSession",
+}
+
+// Session is bound to WebSocket connection
+export type SessionConnectedMessage = {
+    type: "sessionConnected",
+    sessionId: string,
+    sdp: RTCSessionDescriptionInit & { type: "answer" },
+};
+
+// Used on both EOF and unsuccessful "resumeSession"
+// TODO: We may want to re-think about this...
+export type SessionEndedMessage = {
+    type: "sessionEnded",
+    reason: string,
+}
+
+export type IceCandidateMessage = {
+    type: "iceCandidate",
+    candidate: RTCIceCandidateInit,
+};
+
+// Used for re-negotiation on both sides.
+export type NewSdpMessage = {
+    type: "newSdp",
+    sdp: RTCSessionDescriptionInit,
+}
+
+export type Message = NewSessionMessage
+                    | ResumeSessionMessage
+                    | EndSessionMessage
+                    | SessionConnectedMessage
+                    | SessionEndedMessage
+                    | IceCandidateMessage
+                    | NewSdpMessage;
