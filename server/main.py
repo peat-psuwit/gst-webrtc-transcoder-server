@@ -6,6 +6,7 @@ from websockets.asyncio.server import serve, ServerConnection
 
 from .app import App
 
+
 async def main():
     loop = asyncio.get_running_loop()
     app = App(loop)
@@ -17,6 +18,7 @@ async def main():
     port = int(os.environ.get("PORT", "8001"))
     async with app.serve("", port):
         await stop
+
 
 if __name__ == "__main__":
     asyncio.run(main())

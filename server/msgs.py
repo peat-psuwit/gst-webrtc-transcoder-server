@@ -1,5 +1,15 @@
 from typing_extensions import Literal, NotRequired, TypedDict, Union
 
+class SessionDescription(TypedDict):
+  sdp: NotRequired[str]
+  type: Union[Literal["answer"],Literal["offer"],Literal["pranswer"],Literal["rollback"]]
+
+class IceCandidate(TypedDict):
+  candidate: NotRequired[str]
+  sdpMLineIndex: NotRequired[float]
+  sdpMid: NotRequired[str]
+  usernameFragment: NotRequired[str]
+
 class Ts2Py_Lj3BsgI4Uc(TypedDict):
   sdp: NotRequired[str]
   type: Literal["offer"]
@@ -17,35 +27,21 @@ class ResumeSessionMessage(TypedDict):
 class EndSessionMessage(TypedDict):
   type: Literal["endSession"]
 
-class Ts2Py_KgNjcSLwUP(TypedDict):
-  sdp: NotRequired[str]
-  type: Literal["answer"]
-
 class SessionConnectedMessage(TypedDict):
   type: Literal["sessionConnected"]
   sessionId: str
-  sdp: Ts2Py_KgNjcSLwUP
 
 class SessionEndedMessage(TypedDict):
   type: Literal["sessionEnded"]
+  sessionId: NotRequired[str]
   reason: str
-
-class Ts2Py_3BpyxWIxju(TypedDict):
-  candidate: NotRequired[str]
-  sdpMLineIndex: NotRequired[float]
-  sdpMid: NotRequired[str]
-  usernameFragment: NotRequired[str]
 
 class IceCandidateMessage(TypedDict):
   type: Literal["iceCandidate"]
-  candidate: Ts2Py_3BpyxWIxju
-
-class Ts2Py_PRw0YAtmZf(TypedDict):
-  sdp: NotRequired[str]
-  type: Union[Literal["answer"],Literal["offer"],Literal["pranswer"],Literal["rollback"]]
+  candidate: IceCandidate
 
 class NewSdpMessage(TypedDict):
   type: Literal["newSdp"]
-  sdp: Ts2Py_PRw0YAtmZf
+  sdp: SessionDescription
 
 Message = Union[NewSessionMessage,ResumeSessionMessage,EndSessionMessage,SessionConnectedMessage,SessionEndedMessage,IceCandidateMessage,NewSdpMessage]

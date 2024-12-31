@@ -1,3 +1,7 @@
+// For benefit of Python.
+export type SessionDescription = RTCSessionDescriptionInit;
+export type IceCandidate = RTCIceCandidateInit;
+
 export type NewSessionMessage = {
     type: "newSession",
     videoUrl: string,
@@ -19,13 +23,14 @@ export type EndSessionMessage = {
 export type SessionConnectedMessage = {
     type: "sessionConnected",
     sessionId: string,
-    sdp: RTCSessionDescriptionInit & { type: "answer" },
 };
 
 // Used on both EOF and unsuccessful "resumeSession"
 // TODO: We may want to re-think about this...
 export type SessionEndedMessage = {
     type: "sessionEnded",
+    // To avoid race condition.
+    sessionId?: string,
     reason: string,
 }
 
