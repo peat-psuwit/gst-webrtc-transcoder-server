@@ -67,8 +67,9 @@ class PlayerSession:
         self.gst_dec.props.url = self.media_url
 
         self.gst_webrtc = self.gst_pipe.get_by_name("webrtc")
-        self.gst_webrtc_signaller = self.gst_webrtc.props.signaller
+        self.gst_webrtc.connect("encoder-setup", self.on_encoder_setup)
 
+        self.gst_webrtc_signaller = self.gst_webrtc.props.signaller
         self.gst_webrtc_signaller.connect("start", self.signaller_on_start)
         self.gst_webrtc_signaller.connect("stop", self.signaller_on_stop)
         self.gst_webrtc_signaller.connect(
@@ -91,6 +92,18 @@ class PlayerSession:
         self.gst_webrtc_signaller.emit(
             "session-requested", f"{self.id}-send", f"{self.id}-recv", webrtc_sdp
         )
+
+    def on_encoder_setup(self, ws, consumer_id, pad_name, encoder: Gst.Element):
+        if encoder.__gtype__.name != 'GstOpusEnc':
+            return
+
+        # TODO: allow setting bitrate by user
+        bitrate = 40000
+        print(f"[{self.id}] Setting bitrate for {encoder} to {bitrate}")
+        encoder.props.bitrate = bitrate
+
+        return True
+
 
     def end_session(self, reason: str):
         if self.ws_session:
