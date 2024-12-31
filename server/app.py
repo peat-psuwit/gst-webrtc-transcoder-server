@@ -43,7 +43,7 @@ class App:
         del self.player_sessions[player_session.id]
 
     async def on_connect(self, ws_conn: ServerConnection):
-        ws_session = WsSession(ws_conn, self.event_loop)
+        ws_session = WsSession(self, ws_conn, self.event_loop)
         while True:
             msgTxt = await ws_conn.recv()
             # XXX: no validation whatsoever.
