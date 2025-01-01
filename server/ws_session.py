@@ -86,6 +86,18 @@ class WsSession:
         else:
             pass  # TODO
 
+    def handle_connection_closed(self, ok: bool):
+        if not self.player_session:
+            # Nothing to do.
+            return
+
+        self.player_session.handle_ws_disconnected()
+        if ok:
+            self.player_session.end_session("Disconnected")
+        else:
+            # TODO: support session resumption
+            self.player_session.end_session("Disconnected")
+
     def handle_player_send_sdp(self, sdp: SessionDescription):
         self.send_soon({"type": "newSdp", "sdp": sdp})
 

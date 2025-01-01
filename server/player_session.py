@@ -147,6 +147,9 @@ class PlayerSession:
             "session-description", f"{self.id}-send", webrtc_sdp
         )
 
+    def handle_ws_disconnected(self):
+        self.ws_session = None
+
     # Signal handlers that are called from webrtcsink
     def signaller_on_start(self, _):
         # Do nothing. We _are_ the signal server.

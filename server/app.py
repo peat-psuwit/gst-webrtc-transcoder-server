@@ -3,13 +3,12 @@ import random
 import string
 
 from asyncio import AbstractEventLoop
-from typing import Any
+from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from .msgs import *
 from .player_session import PlayerSession
 from .ws_session import WsSession
-from server import player_session
 
 
 # https://stackoverflow.com/a/2257449
@@ -45,7 +44,15 @@ class App:
     async def on_connect(self, ws_conn: ServerConnection):
         ws_session = WsSession(self, ws_conn, self.event_loop)
         while True:
-            msgTxt = await ws_conn.recv()
+            try:
+                msgTxt = await ws_conn.recv()
+            except ConnectionClosedOK:
+                ws_session.handle_connection_closed(ok=True)
+                return
+            except ConnectionClosedError:
+                ws_session.handle_connection_closed(ok=False)
+                return
+
             # XXX: no validation whatsoever.
             msg: Message = json.loads(msgTxt)
             await ws_session.handle_message(msg)
