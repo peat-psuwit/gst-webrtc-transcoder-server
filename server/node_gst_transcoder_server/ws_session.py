@@ -13,7 +13,13 @@ if TYPE_CHECKING:
     # pylint: disable = ungrouped-imports
     from .app import App
     from .player_session import PlayerSession
+else:
+    # Type stub
+    class App:
+        pass
 
+    class PlayerSession:
+        pass
 
 class WsSession:
     app: App
