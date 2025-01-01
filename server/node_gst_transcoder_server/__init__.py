@@ -7,7 +7,7 @@ from websockets.asyncio.server import serve, ServerConnection
 from .app import App
 
 
-async def main():
+async def async_main():
     loop = asyncio.get_running_loop()
     app = App(loop)
 
@@ -20,5 +20,10 @@ async def main():
         await stop
 
 
+def main():
+    asyncio.run(async_main())
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
+
+__all__ = ["main"]
