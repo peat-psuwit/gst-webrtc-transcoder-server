@@ -6,7 +6,7 @@ from asyncio import AbstractEventLoop
 from websockets.exceptions import ConnectionClosedOK, ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
-from .msgs import *
+from .msgs import Message
 from .player_session import PlayerSession
 from .ws_session import WsSession
 
@@ -25,7 +25,7 @@ class App:
         self.player_sessions = {}
 
     def create_new_player_session(
-        self, media_url: str, ws_session: WsSession, sdp: SessionDescription
+        self, media_url: str, ws_session: WsSession, initial_offer: str
     ):
         session_id = id_generator()
         player_session = self.player_sessions[session_id] = PlayerSession(
@@ -34,7 +34,7 @@ class App:
             ws_session,
             self,  # App
             self.event_loop,
-            sdp,
+            initial_offer,
         )
         return player_session
 

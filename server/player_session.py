@@ -1,10 +1,9 @@
 import asyncio
 import gi
 
-from typing import Optional, TYPE_CHECKING
+from typing import Literal, Optional, TYPE_CHECKING
 
-from .gst_util import gst_webtrc_sdp_from_web_sdp
-from .msgs import *
+from .gst_util import create_gst_webtrc_sdp
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstWebRTC", "1.0")
@@ -48,7 +47,7 @@ class PlayerSession:
         ws_session: WsSession,
         app: App,
         event_loop: asyncio.AbstractEventLoop,
-        initial_sdp: SessionDescription,
+        initial_offer: str,
     ):
         self.id = id
         self.media_url = media_url
@@ -88,13 +87,13 @@ class PlayerSession:
         )
         self.gst_pipe.set_state(Gst.State.PLAYING)
 
-        webrtc_sdp = gst_webtrc_sdp_from_web_sdp(initial_sdp)
+        webrtc_sdp = create_gst_webtrc_sdp("offer", initial_offer)
         self.gst_webrtc_signaller.emit(
             "session-requested", f"{self.id}-send", f"{self.id}-recv", webrtc_sdp
         )
 
     def on_encoder_setup(self, ws, consumer_id, pad_name, encoder: Gst.Element):
-        if encoder.__gtype__.name != 'GstOpusEnc':
+        if encoder.__gtype__.name != "GstOpusEnc":
             return
 
         # TODO: allow setting bitrate by user
@@ -104,7 +103,6 @@ class PlayerSession:
 
         return True
 
-
     def end_session(self, reason: str):
         if self.ws_session:
             self.ws_session.handle_player_session_ended(reason)
@@ -112,28 +110,22 @@ class PlayerSession:
         self.gst_pipe.set_state(Gst.State.NULL)
         self.app.player_session_ended(self)
 
-    def handle_ice_candidate(self, iceCandidate: IceCandidate):
-        if "sdpMLineIndex" in iceCandidate:
-            sdp_m_line_index = iceCandidate["sdpMLineIndex"]
-        else:
-            sdp_m_line_index = None
-
-        if "sdpMid" in iceCandidate:
-            sdp_mid = iceCandidate["sdpMid"]
-        else:
-            sdp_mid = None
-
-        if "candidate" in iceCandidate:
-            candidate = iceCandidate["candidate"]
-        else:
-            candidate = None
-
+    def handle_ice_candidate(
+        self,
+        candidate: Optional[str],
+        sdp_m_line_index: Optional[float],
+        sdp_mid: Optional[str],
+    ):
         self.gst_webrtc_signaller.emit(
             "handle-ice", f"{self.id}-send", sdp_m_line_index, sdp_mid, candidate
         )
 
-    def handle_new_sdp(self, sdp: SessionDescription):
-        if sdp["type"] == "offer" and self.is_making_offer:
+    def handle_new_sdp(
+        self,
+        type: Literal["offer", "pranswer", "answer", "rollback"],
+        sdp: Optional[str],
+    ):
+        if type == "offer" and self.is_making_offer:
             # Perfect negotiation: server is always impolite, because GstWebRTC
             # lack necessary changes in API to be able to perform offer rollback
             # atomically.
@@ -142,7 +134,7 @@ class PlayerSession:
             print(f"[{self.id}] ignore incoming offer as we've offered ours")
             return
 
-        webrtc_sdp = gst_webtrc_sdp_from_web_sdp(sdp)
+        webrtc_sdp = create_gst_webtrc_sdp(type, sdp)
         self.gst_webrtc_signaller.emit(
             "session-description", f"{self.id}-send", webrtc_sdp
         )

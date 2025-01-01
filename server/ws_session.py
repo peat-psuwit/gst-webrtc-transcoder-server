@@ -61,7 +61,19 @@ class WsSession:
             assert not self.player_session
 
         media_url = await extract_media_url_from_video_url(video_url)
-        self.player_session = self.app.create_new_player_session(media_url, self, sdp)
+        if not media_url:
+            await self.send(
+                {"type": "sessionEnded", "reason": "Unable to extract media URL"}
+            )
+            return
+
+        if sdp["type"] != "offer" or "sdp" not in sdp:
+            await self.send({"type": "sessionEnded", "reason": "Malformed offer"})
+            return
+
+        self.player_session = self.app.create_new_player_session(
+            media_url, self, sdp["sdp"]
+        )
         await self.send(
             {"type": "sessionConnected", "sessionId": self.player_session.id}
         )
@@ -76,13 +88,20 @@ class WsSession:
 
     def handle_ice_candidate_msg(self, candidate: IceCandidate):
         if self.player_session:
-            self.player_session.handle_ice_candidate(candidate)
+            self.player_session.handle_ice_candidate(
+                candidate.get("candidate", None),
+                candidate.get("sdpMLineIndex", None),
+                candidate.get("sdpMid", None),
+            )
         else:
             pass  # TODO
 
     def handle_new_sdp_msg(self, sdp: SessionDescription):
         if self.player_session:
-            self.player_session.handle_new_sdp(sdp)
+            self.player_session.handle_new_sdp(
+                sdp["type"],
+                sdp.get("sdp", None),
+            )
         else:
             pass  # TODO
 

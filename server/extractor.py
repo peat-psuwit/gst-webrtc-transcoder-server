@@ -18,4 +18,6 @@ async def extract_media_url_from_video_url(video_url: str):
     # TODO: error checking
     result = stdout.decode()
 
+    if len(result) == 0:
+        return None
     return result
