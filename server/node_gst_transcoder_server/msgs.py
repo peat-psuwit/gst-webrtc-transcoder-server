@@ -10,19 +10,15 @@ class IceCandidate(TypedDict):
   sdpMid: NotRequired[str]
   usernameFragment: NotRequired[str]
 
-class Ts2Py_Lj3BsgI4Uc(TypedDict):
-  sdp: NotRequired[str]
-  type: Literal["offer"]
-
 class NewSessionMessage(TypedDict):
   type: Literal["newSession"]
   videoUrl: str
-  sdp: Ts2Py_Lj3BsgI4Uc
+  sdp: SessionDescription
 
 class ResumeSessionMessage(TypedDict):
   type: Literal["resumeSession"]
   sessionId: str
-  sdp: Ts2Py_Lj3BsgI4Uc
+  sdp: SessionDescription
 
 class EndSessionMessage(TypedDict):
   type: Literal["endSession"]

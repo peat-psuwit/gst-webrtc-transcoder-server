@@ -2,12 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <link rel="stylesheet" href="styles.css" />
+    <title>Transcode streams to be under 64Kbps</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1>Transcode streams to be under 64Kbps</h1>
+      <form id="video-form">
+        <label for="video-url">Video URL: </label>
+        <input type="text" id="video-url" name="video-url" required/>
+        <button type="submit" id="video-form-submit" disabled>Start</button>
+        <button id="video-stop" disabled>Stop</button>
+      </form>
+      <div id="status"></div>
+      <audio id="audio-player" controls autoplay></audio>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
