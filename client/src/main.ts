@@ -6,7 +6,7 @@ function constructWsServer() {
     return url.toString();
 }
 
-let app = new App({
+new App({
     wsServer: constructWsServer(),
     iceServers: [
         // https://groups.google.com/g/discuss-webrtc/c/shcPIaPxwo8
