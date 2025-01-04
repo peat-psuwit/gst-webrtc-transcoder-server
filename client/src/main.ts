@@ -1,7 +1,13 @@
 import App from "./app";
 
+function constructWsServer() {
+    let url = new URL(window.location.toString());
+    url.pathname = "/ws";
+    return url.toString();
+}
+
 let app = new App({
-    wsServer: `${window.location}/ws`,
+    wsServer: constructWsServer(),
     iceServers: [
         // https://groups.google.com/g/discuss-webrtc/c/shcPIaPxwo8
         // > The Google STUN server is something you can freely use for
