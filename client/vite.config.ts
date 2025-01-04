@@ -8,5 +8,8 @@ export default defineConfig({
                 ws: true,
             }
         }
+    },
+    build: {
+        sourcemap: true,
     }
 });
