@@ -63,8 +63,10 @@ class PlayerSession:
         self.event_loop = event_loop
         self.is_making_offer = False
 
+        Gst.init()
+
         self.gst_pipe = Gst.parse_launch_full(
-            "urldecodebin name=dec ! audio/x-raw ! webrtcsink name=webrtc",
+            "uridecodebin3 name=dec ! audio/x-raw ! webrtcsink name=webrtc",
             None,  # GstParseContext
             Gst.ParseFlags.FATAL_ERRORS,
         )
