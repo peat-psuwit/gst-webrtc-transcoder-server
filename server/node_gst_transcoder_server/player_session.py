@@ -104,7 +104,7 @@ class PlayerSession:
             return
 
         # TODO: allow setting bitrate by user
-        bitrate = 40000
+        bitrate = 32000
         print(f"[{self.id}] Setting bitrate for {encoder} to {bitrate}")
         encoder.props.bitrate = bitrate
 
