@@ -21,6 +21,7 @@ else:
     class PlayerSession:
         pass
 
+
 class WsSession:
     app: App
     conn: ServerConnection
@@ -43,9 +44,7 @@ class WsSession:
     async def handle_message(self, msg: Message):
         match msg["type"]:
             case "newSession":
-                # Workaround https://github.com/microsoft/pyright/issues/9647
-                sdp: Any = msg["sdp"]
-                await self.handle_new_session_msg(msg["videoUrl"], sdp)
+                await self.handle_new_session_msg(msg["videoUrl"])
             case "resumeSession":
                 pass  # TODO
             case "endSession":
@@ -58,7 +57,6 @@ class WsSession:
     async def handle_new_session_msg(
         self,
         video_url: str,
-        sdp: SessionDescription,
     ):
         if self.player_session:
             # TODO: logging level
@@ -73,13 +71,7 @@ class WsSession:
             )
             return
 
-        if sdp["type"] != "offer" or "sdp" not in sdp:
-            await self.send({"type": "sessionEnded", "reason": "Malformed offer"})
-            return
-
-        self.player_session = self.app.create_new_player_session(
-            media_url, self, sdp["sdp"]
-        )
+        self.player_session = self.app.create_new_player_session(media_url, self)
         await self.send(
             {"type": "sessionConnected", "sessionId": self.player_session.id}
         )

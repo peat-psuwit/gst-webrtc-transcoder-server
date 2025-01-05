@@ -13,12 +13,10 @@ class IceCandidate(TypedDict):
 class NewSessionMessage(TypedDict):
   type: Literal["newSession"]
   videoUrl: str
-  sdp: SessionDescription
 
 class ResumeSessionMessage(TypedDict):
   type: Literal["resumeSession"]
   sessionId: str
-  sdp: SessionDescription
 
 class EndSessionMessage(TypedDict):
   type: Literal["endSession"]

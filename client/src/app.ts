@@ -228,12 +228,9 @@ export default class App {
         this.set_status("Starting playback...");
         this.update_ui();
 
-        await this.webrtc.setLocalDescription();
-
         this.ws_send({
             type: "newSession",
             videoUrl: video_url,
-            sdp: this.webrtc.localDescription!,
         });
     }
 

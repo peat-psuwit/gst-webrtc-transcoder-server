@@ -24,9 +24,7 @@ class App:
         self.event_loop = event_loop
         self.player_sessions = {}
 
-    def create_new_player_session(
-        self, media_url: str, ws_session: WsSession, initial_offer: str
-    ):
+    def create_new_player_session(self, media_url: str, ws_session: WsSession):
         session_id = id_generator()
         player_session = self.player_sessions[session_id] = PlayerSession(
             session_id,
@@ -34,7 +32,6 @@ class App:
             ws_session,
             self,  # App
             self.event_loop,
-            initial_offer,
         )
         return player_session
 

@@ -5,14 +5,11 @@ export type IceCandidate = RTCIceCandidateInit;
 export type NewSessionMessage = {
     type: "newSession",
     videoUrl: string,
-    sdp: RTCSessionDescriptionInit,
 };
 
 export type ResumeSessionMessage = {
     type: "resumeSession",
     sessionId: string,
-    // We assume that we always want to re-negotiate on re-connect.
-    sdp: RTCSessionDescriptionInit,
 };
 
 export type EndSessionMessage = {

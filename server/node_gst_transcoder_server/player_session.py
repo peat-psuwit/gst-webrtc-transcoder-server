@@ -54,7 +54,6 @@ class PlayerSession:
         ws_session: WsSession,
         app: App,
         event_loop: asyncio.AbstractEventLoop,
-        initial_offer: str,
     ):
         self.id = id
         self.media_url = media_url
@@ -99,11 +98,6 @@ class PlayerSession:
             pass
 
         self.gst_pipe.set_state(Gst.State.PLAYING)
-
-        webrtc_sdp = create_gst_webtrc_sdp("offer", initial_offer)
-        self.gst_webrtc_signaller.emit(
-            "session-requested", f"{self.id}-send", f"{self.id}-recv", webrtc_sdp
-        )
 
     def on_encoder_setup(self, ws, consumer_id, pad_name, encoder: Gst.Element):
         if encoder.__gtype__.name != "GstOpusEnc":
@@ -157,7 +151,10 @@ class PlayerSession:
 
     # Signal handlers that are called from webrtcsink
     def signaller_on_start(self, _):
-        # Do nothing. We _are_ the signal server.
+        self.gst_webrtc_signaller.emit(
+            "session-requested", f"{self.id}-send", f"{self.id}-recv", None
+        )
+
         return True
 
     def signaller_on_stop(self, _):
