@@ -124,7 +124,7 @@ class PlayerSession:
         sdp_mid: Optional[str],
     ):
         self.gst_webrtc_signaller.emit(
-            "handle-ice", f"{self.id}-send", sdp_m_line_index, sdp_mid, candidate
+            "handle-ice", self.id, sdp_m_line_index, sdp_mid, candidate
         )
 
     def handle_new_sdp(
@@ -142,9 +142,7 @@ class PlayerSession:
             return
 
         webrtc_sdp = create_gst_webtrc_sdp(type, sdp)
-        self.gst_webrtc_signaller.emit(
-            "session-description", f"{self.id}-send", webrtc_sdp
-        )
+        self.gst_webrtc_signaller.emit("session-description", self.id, webrtc_sdp)
 
     def handle_ws_disconnected(self):
         self.ws_session = None
@@ -152,7 +150,7 @@ class PlayerSession:
     # Signal handlers that are called from webrtcsink
     def signaller_on_start(self, _):
         self.gst_webrtc_signaller.emit(
-            "session-requested", f"{self.id}-send", f"{self.id}-recv", None
+            "session-requested", self.id, f"{self.id}-recv", None
         )
 
         return True
