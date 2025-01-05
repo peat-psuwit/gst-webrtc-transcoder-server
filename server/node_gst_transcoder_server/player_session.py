@@ -63,7 +63,7 @@ class PlayerSession:
         self.event_loop = event_loop
         self.is_making_offer = False
 
-        Gst.init()
+        Gst.init(None)
 
         self.gst_pipe = Gst.parse_launch_full(
             "uridecodebin3 name=dec ! audio/x-raw ! webrtcsink name=webrtc",
@@ -72,7 +72,7 @@ class PlayerSession:
         )
 
         self.gst_dec = self.gst_pipe.get_by_name("dec")
-        self.gst_dec.props.url = self.media_url
+        self.gst_dec.props.uri = self.media_url
 
         self.gst_webrtc = self.gst_pipe.get_by_name("webrtc")
         self.gst_webrtc.connect("encoder-setup", self.on_encoder_setup)
