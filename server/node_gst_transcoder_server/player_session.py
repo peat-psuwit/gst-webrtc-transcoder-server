@@ -91,9 +91,13 @@ class PlayerSession:
         self.gst_webrtc_signaller.connect(
             "consumer-removed", self.signaller_on_consumer_removed
         )
-        self.gst_webrtc_signaller.connect(
-            "webrtcbin-ready", self.signaller_on_webrtcbin_ready
-        )
+        try:
+            self.gst_webrtc_signaller.connect(
+                "webrtcbin-ready", self.signaller_on_webrtcbin_ready
+            )
+        except TypeError:
+            pass
+
         self.gst_pipe.set_state(Gst.State.PLAYING)
 
         webrtc_sdp = create_gst_webtrc_sdp("offer", initial_offer)
