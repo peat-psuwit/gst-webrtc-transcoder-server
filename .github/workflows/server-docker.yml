@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         arch: [amd64, arm64]
-    runs-on: >
+    runs-on: >-
       ${{ fromJson('{ "amd64": "ubuntu-24.04", "arm64": "ubuntu-24.04-arm" }')[matrix.arch] }}
     steps:
       - name: Checkout
