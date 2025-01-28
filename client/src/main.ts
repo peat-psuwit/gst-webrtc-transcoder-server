@@ -3,6 +3,7 @@ import App from "./app";
 function constructWsServer() {
     let url = new URL(window.location.toString());
     url.pathname = url.pathname.replace(new RegExp("/[^/]*$"), "/ws");
+    url.hash = "";
     return url.toString();
 }
 
