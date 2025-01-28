@@ -36,7 +36,11 @@ class App:
         return player_session
 
     def player_session_ended(self, player_session: PlayerSession):
-        del self.player_sessions[player_session.id]
+        try:
+            del self.player_sessions[player_session.id]
+        except KeyError:
+            # TODO: logging level
+            print(f"Warning: session {player_session.id} ended twice?")
 
     async def on_connect(self, ws_conn: ServerConnection):
         ws_session = WsSession(self, ws_conn, self.event_loop)
