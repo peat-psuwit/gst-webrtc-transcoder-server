@@ -57,6 +57,10 @@ jobs:
           docker load --input ${{ runner.temp }}/server_amd64.tar
           docker load --input ${{ runner.temp }}/server_arm64v8.tar
 
+          docker push \
+            ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-amd64 \
+            ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-arm64v8
+
           docker manifest create \
             ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest \
               --amend ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-amd64 \
