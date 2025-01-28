@@ -7,9 +7,9 @@ jobs:
   build:
     strategy:
       matrix:
-        arch: [amd64, arm64]
+        arch: [amd64, arm64v8]
     runs-on: >-
-      ${{ fromJson('{ "amd64": "ubuntu-24.04", "arm64": "ubuntu-24.04-arm" }')[matrix.arch] }}
+      ${{ fromJson('{ "amd64": "ubuntu-24.04", "arm64v8": "ubuntu-24.04-arm" }')[matrix.arch] }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./server/
-          tags: peat-psuwit/gst-webrtc-transcoder-server:latest-${{ matrix.arch }}
+          tags: ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-${{ matrix.arch }}
           outputs: type=docker,dest=${{ runner.temp }}/server_${{ matrix.arch }}.tar
 
       - name: Upload artifact
@@ -55,11 +55,11 @@ jobs:
         run: |
           set -x
           docker load --input ${{ runner.temp }}/server_amd64.tar
-          docker load --input ${{ runner.temp }}/server_arm64.tar
+          docker load --input ${{ runner.temp }}/server_arm64v8.tar
 
           docker manifest create \
             ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest \
-              --amend peat-psuwit/gst-webrtc-transcoder-server:latest-amd64 \
-              --amend peat-psuwit/gst-webrtc-transcoder-server:latest-arm64
+              --amend ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-amd64 \
+              --amend ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest-arm64v8
 
-          docker push ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest
+          docker manifest push ghcr.io/peat-psuwit/gst-webrtc-transcoder-server:latest
