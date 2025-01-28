@@ -53,6 +53,7 @@ jobs:
 
       - name: Load images, create manifest, and push images
         run: |
+          set -x
           docker load --input ${{ runner.temp }}/server_amd64.tar
           docker load --input ${{ runner.temp }}/server_arm64.tar
 
