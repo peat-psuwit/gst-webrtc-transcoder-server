@@ -50,7 +50,7 @@ jobs:
           merge-multiple: true
 
       - name: Load images, create manifest, and push images
-        runs: |
+        run: |
           docker load --input ${{ runner.temp }}/server_amd64.tar
           docker load --input ${{ runner.temp }}/server_arm64.tar
 
