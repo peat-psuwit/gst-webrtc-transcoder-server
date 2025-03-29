@@ -23,7 +23,7 @@ RUN \
 # XXX: abuse rust-builder to pull in required file, so that the final image
 # don't need wget.
 RUN wget -O /tmp/python3-websockets.deb \
-        https://deb.debian.org/debian/pool/main/p/python-websockets/python3-websockets_14.1-1_$( \
+        https://deb.debian.org/debian/pool/main/p/python-websockets/python3-websockets_14.1-1+b1_$( \
             dpkg --print-architecture \
         ).deb
 
