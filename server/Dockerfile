@@ -20,23 +20,15 @@ RUN \
     cd net/webrtc && cargo build --release && \
     cd ../../net/rtp && cargo build --release
 
-# XXX: abuse rust-builder to pull in required file, so that the final image
-# don't need wget.
-RUN wget -O /tmp/python3-websockets.deb \
-        https://deb.debian.org/debian/pool/main/p/python-websockets/python3-websockets_14.1-1+b1_$( \
-            dpkg --print-architecture \
-        ).deb
-
 # Use latest Ubuntu to benefit from newer GStreamer.
-FROM docker.io/library/ubuntu:24.10
+FROM docker.io/library/ubuntu:25.04
 
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,from=rust-builder,source=/tmp,target=/tmp/rust-builder \
     apt-get update && \
-    # XXX: use apt instead of apt-get for install-from-file feature.
-    apt install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
         ca-certificates \
         gstreamer1.0-plugins-base \
         gstreamer1.0-plugins-good \
@@ -51,9 +43,7 @@ RUN \
         # server dependency
         python3-gst-1.0 \
         python3-typing-extensions \
-        # XXX: use python3-websockets from Debian testing as the one in Ubuntu
-        # 24.10 is not new enough for my code.
-        /tmp/rust-builder/python3-websockets.deb
+        python3-websockets
 
 # Install yt-dlp from official release instead of Ubuntu package, as yt-dlp is
 # updated frequently to catch up with YouTube and other services' changes.
