@@ -4,6 +4,7 @@ import gi
 from typing import Literal, Optional, TYPE_CHECKING
 
 from .gst_util import create_gst_webtrc_sdp
+from .types import RawMedia
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstWebRTC", "1.0")
@@ -35,13 +36,11 @@ else:
 
 class PlayerSession:
     id: str
-    media_url: str
     ws_session: Optional[WsSession]
     app: App
     event_loop: asyncio.AbstractEventLoop
 
     gst_pipe: Gst.Pipeline
-    gst_dec: Gst.Element
     gst_webrtc: Gst.Element
     gst_webrtc_signaller: GObject.Object
 
@@ -50,13 +49,12 @@ class PlayerSession:
     def __init__(
         self,
         id: str,
-        media_url: str,
+        media_urls: list[RawMedia],
         ws_session: WsSession,
         app: App,
         event_loop: asyncio.AbstractEventLoop,
     ):
         self.id = id
-        self.media_url = media_url
         self.ws_session = ws_session
         self.app = app
         self.event_loop = event_loop
@@ -64,14 +62,25 @@ class PlayerSession:
 
         Gst.init(None)
 
+        pipeline_string = "webrtcsink name=webrtc"
+        for i, media in enumerate(media_urls):
+            pipeline_string += f" uridecodebin3 name=dec{i}"
+
+            if media.expect_video:
+                pipeline_string += f" dec{i}. ! video/x-raw ! webrtc."
+
+            if media.expect_audio:
+                pipeline_string += f" dec{i}. ! audio/x-raw ! webrtc."
+
         self.gst_pipe = Gst.parse_launch_full(
-            "uridecodebin3 name=dec ! audio/x-raw ! webrtcsink name=webrtc",
+            pipeline_string,
             None,  # GstParseContext
             Gst.ParseFlags.FATAL_ERRORS,
         )
 
-        self.gst_dec = self.gst_pipe.get_by_name("dec")
-        self.gst_dec.props.uri = self.media_url
+        for i, media in enumerate(media_urls):
+            dec = self.gst_pipe.get_by_name(f"dec{i}")
+            dec.props.uri = media_urls[i].url
 
         self.gst_webrtc = self.gst_pipe.get_by_name("webrtc")
         self.gst_webrtc.connect("encoder-setup", self.on_encoder_setup)

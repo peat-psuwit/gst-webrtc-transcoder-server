@@ -64,14 +64,14 @@ class WsSession:
             await self.handle_end_session_msg()
             assert not self.player_session
 
-        media_url = await extract_media_url_from_video_url(video_url)
-        if not media_url:
+        media_urls = await extract_media_url_from_video_url(video_url)
+        if not media_urls:
             await self.send(
                 {"type": "sessionEnded", "reason": "Unable to extract media URL"}
             )
             return
 
-        self.player_session = self.app.create_new_player_session(media_url, self)
+        self.player_session = self.app.create_new_player_session(media_urls, self)
         await self.send(
             {"type": "sessionConnected", "sessionId": self.player_session.id}
         )

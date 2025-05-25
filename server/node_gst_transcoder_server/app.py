@@ -8,6 +8,7 @@ from websockets.asyncio.server import serve, ServerConnection
 
 from .msgs import Message
 from .player_session import PlayerSession
+from .types import RawMedia
 from .ws_session import WsSession
 
 
@@ -24,11 +25,13 @@ class App:
         self.event_loop = event_loop
         self.player_sessions = {}
 
-    def create_new_player_session(self, media_url: str, ws_session: WsSession):
+    def create_new_player_session(
+        self, media_urls: list[RawMedia], ws_session: WsSession
+    ):
         session_id = id_generator()
         player_session = self.player_sessions[session_id] = PlayerSession(
             session_id,
-            media_url,
+            media_urls,
             ws_session,
             self,  # App
             self.event_loop,

@@ -1,5 +1,7 @@
 import asyncio
 
+from .types import RawMedia
+
 
 async def extract_media_url_from_video_url(video_url: str):
     # TODO: more sophisticated stuffs
@@ -20,4 +22,4 @@ async def extract_media_url_from_video_url(video_url: str):
 
     if len(result) == 0:
         return None
-    return result.strip()
+    return [RawMedia(result.strip(), expect_audio=True)]
