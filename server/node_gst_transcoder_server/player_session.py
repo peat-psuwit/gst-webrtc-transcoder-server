@@ -45,6 +45,7 @@ class PlayerSession:
     gst_webrtc_signaller: GObject.Object
 
     is_making_offer: bool
+    expect_video: bool
 
     def __init__(
         self,
@@ -59,18 +60,35 @@ class PlayerSession:
         self.app = app
         self.event_loop = event_loop
         self.is_making_offer = False
+        self.expect_video = False
+
+        for media in media_urls:
+            if media.expect_video:
+                self.expect_video = True
+                break
 
         Gst.init(None)
 
-        pipeline_string = "webrtcsink name=webrtc"
+        pipeline_string = (
+            "webrtcsink name=webrtc "
+            "do-fec=false do-retransmission=true "
+            "min-bitrate=24000 start-bitrate=40000 max-bitrate=56000"
+        )
         for i, media in enumerate(media_urls):
             pipeline_string += f" uridecodebin3 name=dec{i}"
 
             if media.expect_video:
-                pipeline_string += f" dec{i}. ! video/x-raw ! webrtc."
+                pipeline_string += (
+                    f" dec{i}. ! videorate ! videoscale !"
+                    f" video/x-raw,height=[1,144],framerate=[1/1,5/2] ! webrtc."
+                )
 
             if media.expect_audio:
-                pipeline_string += f" dec{i}. ! audio/x-raw ! webrtc."
+                pipeline_string += (
+                    f" dec{i}. ! audioconvert !"
+                    f" audio/x-raw{',channels=1' if self.expect_video else ''} !"
+                    f" webrtc."
+                )
 
         self.gst_pipe = Gst.parse_launch_full(
             pipeline_string,
@@ -113,7 +131,7 @@ class PlayerSession:
             return
 
         # TODO: allow setting bitrate by user
-        bitrate = 32000
+        bitrate = 12000 if self.expect_video else 32000
         print(f"[{self.id}] Setting bitrate for {encoder} to {bitrate}")
         encoder.props.bitrate = bitrate
 
