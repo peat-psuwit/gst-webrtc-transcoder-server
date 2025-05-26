@@ -11,9 +11,10 @@ RUN \
 # FIXME: When new Podman version which supports Git in ADD command is available,
 # switch to that.
 # https://github.com/containers/buildah/issues/4974
-RUN git clone --depth=1 --branch=0.13.6 \
-    https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git \
-    /usr/src/gst-plugins-rs
+RUN mkdir /usr/src/gst-plugins-rs && \
+    curl --location \
+        https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/34f16e0567721b3741ee6e44c07dae8539491715/gst-plugins-rs.tar.bz2 | \
+    tar -x --bz --strip-components=1 -C /usr/src/gst-plugins-rs
 WORKDIR /usr/src/gst-plugins-rs
 
 RUN \
