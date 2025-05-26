@@ -21,9 +21,10 @@ https://github.com/peat-psuwit/node-gst-transcoder-server
         <input type="text" id="video-url" name="video-url" required disabled/>
         <button type="submit" id="video-form-submit" disabled>Start</button>
         <button id="video-stop" disabled>Stop</button>
+        <input id="want-video" type="checkbox" disabled /> <label for="want-video">Want video?</label>
       </form>
       <div id="status">&nbsp;</div>
-      <audio id="audio-player" controls autoplay></audio>
+      <div id="media-player-holder"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

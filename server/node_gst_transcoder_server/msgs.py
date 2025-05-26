@@ -13,6 +13,7 @@ class IceCandidate(TypedDict):
 class NewSessionMessage(TypedDict):
   type: Literal["newSession"]
   videoUrl: str
+  wantVideo: NotRequired[bool]
 
 class ResumeSessionMessage(TypedDict):
   type: Literal["resumeSession"]

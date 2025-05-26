@@ -5,6 +5,7 @@ export type IceCandidate = RTCIceCandidateInit;
 export type NewSessionMessage = {
     type: "newSession",
     videoUrl: string,
+    wantVideo?: boolean,
 };
 
 export type ResumeSessionMessage = {

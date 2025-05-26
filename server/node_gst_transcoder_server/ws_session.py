@@ -44,7 +44,10 @@ class WsSession:
     async def handle_message(self, msg: Message):
         match msg["type"]:
             case "newSession":
-                await self.handle_new_session_msg(msg["videoUrl"])
+                await self.handle_new_session_msg(
+                    msg["videoUrl"],
+                    msg.get("wantVideo", False),
+                )
             case "resumeSession":
                 pass  # TODO
             case "endSession":
@@ -57,6 +60,7 @@ class WsSession:
     async def handle_new_session_msg(
         self,
         video_url: str,
+        want_video: bool,
     ):
         if self.player_session:
             # TODO: logging level
@@ -64,7 +68,7 @@ class WsSession:
             await self.handle_end_session_msg()
             assert not self.player_session
 
-        media_urls = await extract_media_url_from_video_url(video_url)
+        media_urls = await extract_media_url_from_video_url(video_url, want_video)
         if not media_urls:
             await self.send(
                 {"type": "sessionEnded", "reason": "Unable to extract media URL"}

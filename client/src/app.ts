@@ -2,6 +2,7 @@ import type { Config } from "./types"
 import type { Message } from "./msgs";
 
 export default class App {
+    document: Document
     config: Config;
     sessionId: string | null;
     startingSession: boolean;
@@ -17,10 +18,13 @@ export default class App {
     video_url_input: HTMLInputElement
     video_form_submit: HTMLButtonElement
     video_stop_btn: HTMLButtonElement
+    want_video_input: HTMLInputElement
     status_div: HTMLDivElement
-    audio_player: HTMLAudioElement
+    media_player_holder: HTMLDivElement
+    media_player: HTMLMediaElement | null
 
     constructor(config: Config, document: Document) {
+        this.document = document;
         this.config = config;
         this.sessionId = null;
         this.startingSession = false;
@@ -32,8 +36,10 @@ export default class App {
         this.video_url_input = <HTMLInputElement>document.getElementById("video-url");
         this.video_form_submit = <HTMLButtonElement>document.getElementById("video-form-submit");
         this.video_stop_btn = <HTMLButtonElement>document.getElementById("video-stop");
+        this.want_video_input = <HTMLInputElement>document.getElementById("want-video");
         this.status_div = <HTMLDivElement>document.getElementById("status");
-        this.audio_player = <HTMLAudioElement>document.getElementById("audio-player");
+        this.media_player_holder = <HTMLDivElement>document.getElementById("media-player-holder");
+        this.media_player = null;
 
         this.video_form.addEventListener("submit", this.handle_video_form_submit);
         this.video_stop_btn.addEventListener("click", this.handle_video_stop_btn);
@@ -52,9 +58,11 @@ export default class App {
         ) {
             this.video_url_input.removeAttribute("disabled");
             this.video_form_submit.removeAttribute("disabled");
+            this.want_video_input.removeAttribute("disabled");
         } else {
             this.video_url_input.setAttribute("disabled", "");
             this.video_form_submit.setAttribute("disabled", "");
+            this.want_video_input.setAttribute("disabled", "");
         }
 
         if (this.sessionId && !this.startingSession && !this.endingSession) {
@@ -168,7 +176,8 @@ export default class App {
 
     reset_webrtc() {
         if (this.webrtc) {
-            this.audio_player.srcObject = null;
+            if (this.media_player)
+                this.media_player.srcObject = null;
             this.webrtc.close();
         }
 
@@ -185,11 +194,16 @@ export default class App {
 
     handle_webrtc_track = ({ track, streams }: RTCTrackEvent) => {
         track.addEventListener("unmute", () => {
-            if (this.audio_player.srcObject) {
+            if (!this.media_player) {
                 // ???
                 return;
             }
-            this.audio_player.srcObject = streams[0];
+
+            if (this.media_player.srcObject) {
+                // ???
+                return;
+            }
+            this.media_player.srcObject = streams[0];
         }, { once: true });
     }
 
@@ -224,6 +238,17 @@ export default class App {
         let video_url = this.video_url_input.value;
         this.video_url_input.value = "";
 
+        let wantVideo = this.want_video_input.checked;
+
+        if (wantVideo)
+            this.media_player = this.document.createElement("video");
+        else
+            this.media_player = this.document.createElement("audio");
+
+        this.media_player.setAttribute("autoplay", "");
+        this.media_player.setAttribute("controls", "");
+        this.media_player_holder.replaceChildren(this.media_player);
+
         this.startingSession = true;
         this.set_status("Starting playback...");
         this.update_ui();
@@ -231,6 +256,7 @@ export default class App {
         this.ws_send({
             type: "newSession",
             videoUrl: video_url,
+            wantVideo,
         });
     }
 
