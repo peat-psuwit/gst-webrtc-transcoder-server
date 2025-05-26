@@ -72,7 +72,12 @@ class PlayerSession:
         pipeline_string = (
             "webrtcsink name=webrtc "
             "do-fec=false do-retransmission=true "
-            "min-bitrate=24000 start-bitrate=40000 max-bitrate=56000"
+            # video/x-h265 (x265enc) doesn't support bitrate control.
+            # video/x-av1 outright doesn't work for some reason (rtpav1pay complains
+            # "Generated packet has bigger size 1208 than MTU 1200").
+            # Prefer more modern codecs over older ones.
+            "video-caps=video/x-vp9;video/x-vp8;video/x-h264 "
+            "start-bitrate=32000 max-bitrate=50000"
         )
         for i, media in enumerate(media_urls):
             pipeline_string += f" uridecodebin3 name=dec{i}"
@@ -80,7 +85,7 @@ class PlayerSession:
             if media.expect_video:
                 pipeline_string += (
                     f" dec{i}. ! videorate ! videoscale !"
-                    f" video/x-raw,height=[1,144],framerate=[1/1,5/2] ! webrtc."
+                    f" video/x-raw,height=[1,144],framerate=[1/1,5/1] ! webrtc."
                 )
 
             if media.expect_audio:
@@ -131,7 +136,7 @@ class PlayerSession:
             return
 
         # TODO: allow setting bitrate by user
-        bitrate = 12000 if self.expect_video else 32000
+        bitrate = 10000 if self.expect_video else 32000
         print(f"[{self.id}] Setting bitrate for {encoder} to {bitrate}")
         encoder.props.bitrate = bitrate
 
