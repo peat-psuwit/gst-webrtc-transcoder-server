@@ -9,6 +9,7 @@ from .types import RawMedia
 gi.require_version("Gst", "1.0")
 gi.require_version("GstWebRTC", "1.0")
 
+from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gst
 from gi.repository import GstWebRTC
@@ -41,6 +42,7 @@ class PlayerSession:
     event_loop: asyncio.AbstractEventLoop
 
     gst_pipe: Gst.Pipeline
+    gst_bus: Gst.Bus
     gst_webrtc: Gst.Element
     gst_webrtc_signaller: GObject.Object
 
@@ -101,6 +103,9 @@ class PlayerSession:
             Gst.ParseFlags.FATAL_ERRORS,
         )
 
+        self.gst_bus = self.gst_pipe.get_bus()
+        self.gst_bus.add_watch(GLib.PRIORITY_DEFAULT, self.bus_on_message)
+
         for i, media in enumerate(media_urls):
             dec = self.gst_pipe.get_by_name(f"dec{i}")
             dec.props.uri = media_urls[i].url
@@ -147,6 +152,7 @@ class PlayerSession:
             self.ws_session.handle_player_session_ended(reason)
 
         self.gst_pipe.set_state(Gst.State.NULL)
+        self.gst_bus.remove_watch()
         self.app.player_session_ended(self)
 
     def handle_ice_candidate(
@@ -178,6 +184,22 @@ class PlayerSession:
 
     def handle_ws_disconnected(self):
         self.ws_session = None
+
+    def bus_on_message(self, bus: Gst.Bus, msg: Gst.Message):
+        if msg.type == Gst.MessageType.ERROR:
+            err, debug_info = msg.parse_error()
+            # TODO: log level
+            print(f"GStreamer error: {err.message} (debug info: {debug_info})")
+
+            self.end_session(f"Gstreamer error: {err.message}")
+        elif msg.type == Gst.MessageType.EOS:
+            # FIXME: determine if webrtc{sink,bin} somehow exposes latency
+            # information, so that we don't cut off playback before it actually
+            # finished on the client.
+            delay = 1  # sec.
+            self.event_loop.call_later(delay, self.end_session, "finished")
+
+        return GLib.SOURCE_CONTINUE
 
     # Signal handlers that are called from webrtcsink
     def signaller_on_start(self, _):
