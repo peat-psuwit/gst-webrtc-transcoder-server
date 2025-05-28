@@ -2,13 +2,13 @@ import asyncio
 import os
 import signal
 
-from websockets.asyncio.server import serve, ServerConnection
+from gi.events import GLibEventLoopPolicy
+from gi.repository import GLib
 
 from .app import App
 
 
-async def async_main():
-    loop = asyncio.get_running_loop()
+async def async_main(loop: asyncio.AbstractEventLoop):
     app = App(loop)
 
     # Set the stop condition when receiving SIGTERM.
@@ -21,7 +21,15 @@ async def async_main():
 
 
 def main():
-    asyncio.run(async_main())
+    policy = GLibEventLoopPolicy()
+    asyncio.set_event_loop_policy(policy)
+
+    loop = policy.get_event_loop()
+    task = loop.create_task(async_main(loop))
+
+    glib_mainloop = GLib.MainLoop()
+    glib_mainloop.run()
+
 
 if __name__ == "__main__":
     main()
