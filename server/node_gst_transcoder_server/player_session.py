@@ -87,7 +87,8 @@ class PlayerSession:
             if media.expect_video:
                 pipeline_string += (
                     f" dec{i}. ! videorate ! videoscale !"
-                    f" video/x-raw,height=[1,144],framerate=[1/1,5/1] ! webrtc."
+                    # FIXME: more intelligent handling of vertical video.
+                    f" video/x-raw,height=[1,96],framerate=[1/1,5/1] ! webrtc."
                 )
 
             if media.expect_audio:
