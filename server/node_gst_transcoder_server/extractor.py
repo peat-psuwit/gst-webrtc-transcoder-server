@@ -5,12 +5,24 @@ from .types import RawMedia
 
 async def extract_media_url_from_video_url(video_url: str, want_video: bool):
     # TODO: more sophisticated stuffs
+
+    if want_video:
+        # Try to pick an up to 240p video, so that when further downscaled it's
+        # not half bad. Failing that, just picking any smallest video.
+        ytdlp_format = (
+            'worstvideo[height<=240]+bestaudio'
+            '/bestvideo+bestaudio'
+            '/best'
+        )
+    else:
+        ytdlp_format = 'bestaudio/best'
+
     process = await asyncio.create_subprocess_exec(
         "yt-dlp",
         "-v",
         "-g",
         "-f",
-        f"{'bestvideo+' if want_video else ''}bestaudio/best",
+        ytdlp_format,
         "--format-sort",
         "+size,+br,+res,+fps",
         video_url,
