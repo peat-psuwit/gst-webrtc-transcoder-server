@@ -13,7 +13,7 @@ RUN \
 # https://github.com/containers/buildah/issues/4974
 RUN mkdir /usr/src/gst-plugins-rs && \
     curl --location \
-        https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/34f16e0567721b3741ee6e44c07dae8539491715/gst-plugins-rs.tar.bz2 | \
+        https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/88dbe2dc4e4757879560f2abff4c57e227e1effe/gst-plugins-rs.tar.bz2 | \
     tar -x --bz --strip-components=1 -C /usr/src/gst-plugins-rs
 WORKDIR /usr/src/gst-plugins-rs
 
