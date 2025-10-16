@@ -7,7 +7,8 @@ export default class App {
     sessionId: string | null;
     startingSession: boolean;
     endingSession: boolean;
-    wsCloseCount: number;
+    reconnectAttempt: number;
+    maxReconnectDelay: number;
 
     // Assigned in reset_webrtc(), called from constructor.
     webrtc!: RTCPeerConnection;
@@ -29,7 +30,8 @@ export default class App {
         this.sessionId = null;
         this.startingSession = false;
         this.endingSession = false;
-        this.wsCloseCount = 0;
+        this.reconnectAttempt = 0;
+        this.maxReconnectDelay = 8000;
 
         // TODO: better way than interogate document?
         this.video_form = <HTMLFormElement>document.getElementById("video-form");
@@ -97,7 +99,7 @@ export default class App {
             this.set_status("Connected to server.");
         }
 
-        this.wsCloseCount = 0;
+        this.reconnectAttempt = 0;
 
         this.update_ui();
     }
@@ -160,16 +162,15 @@ export default class App {
     }
 
     handle_ws_close = () => {
-        this.wsCloseCount++;
-        if (this.wsCloseCount >= 5) {
-            this.set_status(
-                "WebSocket connection unexpetedly closed too many times. " +
-                "Please try refreshing the page.");
-        } else {
-            this.set_status(
-                "WebSocket connection unexpectedly closed. Trying to reconnect.");
+        const delay = Math.min(this.maxReconnectDelay, 1000 * Math.pow(2, this.reconnectAttempt));
+        this.reconnectAttempt++;
+
+        this.set_status(
+            `WebSocket connection unexpectedly closed. Trying to reconnect in ${delay / 1000}s.`);
+
+        setTimeout(() => {
             this.reset_ws();
-        }
+        }, delay);
 
         this.update_ui();
     }
