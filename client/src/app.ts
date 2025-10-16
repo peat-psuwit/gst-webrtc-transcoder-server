@@ -114,6 +114,7 @@ export default class App {
         let msg = <Message> JSON.parse(e.data);
         switch (msg.type) {
             case "sessionConnected":
+                this.video_url_input.value = "";
                 this.sessionId = msg.sessionId;
                 this.startingSession = false;
                 // Answer SDP will come from newSdp event.
@@ -237,7 +238,6 @@ export default class App {
         ev.preventDefault();
 
         let video_url = this.video_url_input.value;
-        this.video_url_input.value = "";
 
         let wantVideo = this.want_video_input.checked;
 
