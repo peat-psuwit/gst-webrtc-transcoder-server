@@ -148,7 +148,17 @@ class PlayerSession:
 
         return True
 
+    def is_pipeline_ending(self):
+        _, state, pending_state = self.gst_pipe.get_state(0)
+        if pending_state == Gst.State.VOID_PENDING:
+            return state <= Gst.State.READY
+        else:
+            return pending_state <= Gst.State.READY
+
     def end_session(self, reason: str):
+        if self.is_pipeline_ending():
+            return
+
         if self.ws_session:
             self.ws_session.handle_player_session_ended(reason)
 
