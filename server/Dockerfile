@@ -20,7 +20,6 @@ FROM docker.io/library/ubuntu:26.04
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,from=rust-builder,source=/tmp,target=/tmp/rust-builder \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
