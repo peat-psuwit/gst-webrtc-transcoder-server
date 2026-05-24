@@ -7,13 +7,7 @@ RUN \
     apt-get update && \
     apt-get install -y libgstreamer-plugins-bad1.0-dev
 
-# FIXME: When new Podman version which supports Git in ADD command is available,
-# switch to that.
-# https://github.com/containers/buildah/issues/4974
-RUN mkdir /usr/src/gst-plugins-rs && \
-    curl --location \
-        https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/88dbe2dc4e4757879560f2abff4c57e227e1effe/gst-plugins-rs.tar.bz2 | \
-    tar -x --bz --strip-components=1 -C /usr/src/gst-plugins-rs
+ADD https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git#0.15.2 /usr/src/gst-plugins-rs
 WORKDIR /usr/src/gst-plugins-rs
 
 RUN \
