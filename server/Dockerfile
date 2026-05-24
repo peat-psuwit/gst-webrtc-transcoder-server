@@ -14,6 +14,14 @@ RUN \
     cd net/webrtc && cargo build --release && \
     cd ../../net/rtp && cargo build --release
 
+# Download and unpack deno for the benefit of real container below.
+# FIXME: once Podman/Buildah supports ADD --unpack, use that instead.
+RUN \
+    cd /tmp && \
+    wget https://github.com/denoland/deno/releases/download/v2.8.0/deno-x86_64-unknown-linux-gnu.zip && \
+    unzip deno-x86_64-unknown-linux-gnu.zip && \
+    rm deno-x86_64-unknown-linux-gnu.zip
+
 # Use latest Ubuntu to benefit from newer GStreamer.
 FROM docker.io/library/ubuntu:26.04
 
@@ -42,6 +50,12 @@ RUN \
 # updated frequently to catch up with YouTube and other services' changes.
 ADD --chmod=755 \
     https://github.com/yt-dlp/yt-dlp/releases/download/2026.03.17/yt-dlp \
+    /usr/local/bin/
+
+# Install Deno from official binary as there's not Ubuntu package.
+# FIXME: once Podman/Buildah supports ADD --unpack, use that instead.
+COPY --from=rust-builder --chmod=755 \
+    /tmp/deno \
     /usr/local/bin/
 
 COPY --from=rust-builder \
