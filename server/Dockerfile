@@ -1,5 +1,4 @@
-# XXX: Bookworm is pre-t64, but as long as we stay on 64-bit arches, it's fine.
-FROM docker.io/library/rust:bookworm AS rust-builder
+FROM docker.io/library/rust:trixie AS rust-builder
 
 # https://docs.docker.com/reference/dockerfile/#example-cache-apt-packages
 RUN \
