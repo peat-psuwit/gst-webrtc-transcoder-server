@@ -86,9 +86,12 @@ class PlayerSession:
 
             if media.expect_video:
                 pipeline_string += (
-                    f" dec{i}. ! videorate ! videoscale !"
+                    f" dec{i}. ! videorate ! deinterlace ! videoscale !"
                     # FIXME: more intelligent handling of vertical video.
-                    f" video/x-raw,height=[1,96],framerate=[1/1,5/1] ! webrtc."
+                    f" video/x-raw,"
+                    f"    height=[1,96], framerate=[1/1,5/1],"
+                    f"    interlace-mode=progressive, pixel-aspect-ratio=1/1"
+                    f" ! webrtc."
                 )
 
             if media.expect_audio:
