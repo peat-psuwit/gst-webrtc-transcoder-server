@@ -41,7 +41,7 @@ RUN \
 # Install yt-dlp from official release instead of Ubuntu package, as yt-dlp is
 # updated frequently to catch up with YouTube and other services' changes.
 ADD --chmod=755 \
-    https://github.com/yt-dlp/yt-dlp/releases/download/2025.05.22/yt-dlp \
+    https://github.com/yt-dlp/yt-dlp/releases/download/2026.03.17/yt-dlp \
     /usr/local/bin/
 
 COPY --from=rust-builder \
