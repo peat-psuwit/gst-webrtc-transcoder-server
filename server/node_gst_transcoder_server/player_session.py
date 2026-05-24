@@ -1,4 +1,5 @@
 import asyncio
+import os
 import gi
 
 from typing import Literal, Optional, TYPE_CHECKING
@@ -85,8 +86,12 @@ class PlayerSession:
             pipeline_string += f" uridecodebin3 name=dec{i}"
 
             if media.expect_video:
+                video_converter = os.environ.get(
+                    "GWTS_VIDEO_CONVERTER", "deinterlace ! videoscale"
+                )
+
                 pipeline_string += (
-                    f" dec{i}. ! videorate ! deinterlace ! videoscale !"
+                    f" dec{i}. ! videorate ! {video_converter} !"
                     # FIXME: more intelligent handling of vertical video.
                     f" video/x-raw,"
                     f"    height=[1,96], framerate=[1/1,5/1],"
