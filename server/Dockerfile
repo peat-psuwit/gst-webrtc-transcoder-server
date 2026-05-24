@@ -15,7 +15,7 @@ RUN \
     cd ../../net/rtp && cargo build --release
 
 # Use latest Ubuntu to benefit from newer GStreamer.
-FROM docker.io/library/ubuntu:25.04
+FROM docker.io/library/ubuntu:26.04
 
 RUN \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
