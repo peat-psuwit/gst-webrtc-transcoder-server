@@ -11,13 +11,9 @@ from .app import App
 async def async_main(loop: asyncio.AbstractEventLoop):
     app = App(loop)
 
-    # Set the stop condition when receiving SIGTERM.
-    stop = loop.create_future()
-    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
-
     port = int(os.environ.get("PORT", "8001"))
-    async with app.serve("", port):
-        await stop
+    server = await app.serve("", port)
+    await server.serve_forever()
 
 
 def main():
