@@ -21,6 +21,7 @@ async def extract_media_url_from_video_url(video_url: str, want_video: bool):
         "yt-dlp",
         "-v",
         "-g",
+        "--no-playlist",
         "-f",
         ytdlp_format,
         "--format-sort",
